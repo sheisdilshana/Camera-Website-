@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Perceptual Scroll Image Animation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+/* ===== RESET ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ===== BODY ===== */
+body {
+  height: 300vh; /* scroll space */
+  background: #0b0b0b;
+  font-family: system-ui, sans-serif;
+}
+
+/* ===== SPACERS ===== */
+.spacer {
+  height: 100vh;
+}
+
+/* ===== VIEWER ===== */
+.viewer {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== IMAGE ===== */
+.viewer img {
+  width: 60vw;
+  max-width: 700px;
+  height: auto;
+
+  /* GPU acceleration */
+  will-change: transform, opacity;
+  transition: opacity 0.08s linear;
+
+  /* perceptual sharpness */
+  filter: contrast(1.02) saturate(1.05);
+}
+</style>
+</head>
+
+<body>
+
+<section class="spacer"></section>
+
+<section class="viewer">
+  <img 
+    id="frame"
+    src="assets/images/img1.webp"
+    alt="Camera Animation"
+    decoding="async"
+    fetchpriority="high"
+  />
+</section>
+
+<section class="spacer"></section>
+
+<script>
+/* ===== IMAGE FRAMES ===== */
+const frames = [
+  "assets/images/img1.webp",
+  "assets/images/img2.webp",
+  "assets/images/img3.webp",
+  "assets/images/img4.webp",
+  "assets/images/img5.webp"
+];
+
+const img = document.getElementById("frame");
+const total = frames.length;
+
+/* ===== PRELOAD & DECODE ===== */
+const cache = [];
+
+frames.forEach(src => {
+  const i = new Image();
+  i.src = src;
+  i.decode().catch(() => {});
+  cache.push(i);
+});
+
+/* ===== SCROLL LOGIC ===== */
+let lastFrame = 0;
+
+window.addEventListener("scroll", () => {
+  const scrollTop = window.scrollY;
+  const maxScroll = document.body.scrollHeight - window.innerHeight;
+  const progress = scrollTop / maxScroll;
+
+  const frameIndex = Math.min(
+    total - 1,
+    Math.floor(progress * total)
+  );
+
+  if (frameIndex !== lastFrame) {
+    img.style.opacity = "0.95";
+    img.src = cache[frameIndex].src;
+    lastFrame = frameIndex;
+  }
+});
+
+/* ===== INSTANT FIRST FRAME ===== */
+window.addEventListener("load", () => {
+  img.src = cache[0].src;
+});
+</script>
+
+</body>
+</html>
