@@ -2,352 +2,200 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>LUMINA X1 - Professional Cinema Camera</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pro Camera - Technical Showcase</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 
 <style>
-/* ===== VARIABLES & RESET ===== */
+/* ===== SETTINGS ===== */
 :root {
-  --bg-color: #000000;
-  --text-main: #f5f5f7;
-  --text-muted: #86868b;
-  --accent: #2997ff;
+  --bg-color: #050505;
+  --text-color: #ffffff;
+  --accent-color: #ff3b30; /* Pro Red Accent */
+  --camera-max-width: 650px; /* Controls size of camera */
 }
 
+/* ===== RESET ===== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
   background-color: var(--bg-color);
-  color: var(--text-main);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
+  color: var(--text-color);
+  font-family: 'Inter', sans-serif;
+  overscroll-behavior: none;
 }
 
-/* ===== LOADER ===== */
-#loader {
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: #000;
-  z-index: 999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  transition: opacity 0.5s ease;
-}
-.loader-bar {
-  width: 200px;
-  height: 2px;
-  background: #333;
-  margin-top: 20px;
-  border-radius: 2px;
-  overflow: hidden;
-}
-.loader-progress {
-  width: 0%;
-  height: 100%;
-  background: #fff;
-  transition: width 0.1s linear;
-}
-
-/* ===== MAIN STRUCTURE ===== */
-.sticky-container {
+/* ===== STICKY WRAPPER (Holds the Camera) ===== */
+.sticky-stage {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100vh;
-  z-index: -1;
+  z-index: 1;
   display: flex;
   justify-content: center;
   align-items: center;
+  pointer-events: none; /* Let clicks pass through */
 }
 
+/* The Canvas is the Product */
 canvas {
-  max-width: 100vw;
-  max-height: 100vh;
+  width: 90%;
+  max-width: var(--camera-max-width);
+  height: auto;
+  aspect-ratio: 16/9; /* Adjust if your images are square */
   object-fit: contain;
+  filter: drop-shadow(0px 20px 40px rgba(0,0,0,0.8)); /* Deep shadow for realism */
 }
 
-/* Lens Glow Effect */
-.lens-glow {
-  position: absolute;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(41,151,255,0.15) 0%, rgba(0,0,0,0) 70%);
-  border-radius: 50%;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 1s ease;
-}
-
-/* ===== SCROLL CONTENT ===== */
-.scroll-container {
+/* ===== SCROLLING CONTENT ===== */
+.content-layer {
   position: relative;
-  z-index: 10;
+  z-index: 2; /* Sits on top of camera */
 }
 
 section {
-  height: 100vh;
+  height: 100vh; /* Full screen per section */
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
-  padding: 2rem;
-  /* Make text pass through smoothly */
-  pointer-events: none; 
+  padding: 20px;
 }
 
-/* Typography Styles */
+/* Typography Design */
 h1 {
-  font-size: clamp(3rem, 8vw, 6rem);
+  font-size: clamp(3rem, 6vw, 5rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.2em;
+  text-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+h2 {
+  font-size: clamp(2rem, 4vw, 3.5rem);
   font-weight: 600;
-  letter-spacing: -2px;
-  background: linear-gradient(180deg, #fff, #888);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 20px;
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 1s ease-out;
 }
 
 p {
-  font-size: clamp(1.2rem, 2vw, 1.8rem);
-  color: var(--text-muted);
-  max-width: 600px;
-  line-height: 1.5;
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 1s ease-out 0.2s;
+  font-size: 1.25rem;
+  color: #a1a1a6;
+  max-width: 500px;
+  line-height: 1.6;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+  background: rgba(0,0,0,0.4); /* Subtle backing for readability */
+  padding: 10px 20px;
+  border-radius: 12px;
+  backdrop-filter: blur(4px);
 }
 
-.feature-box {
-  background: rgba(20, 20, 20, 0.8);
-  backdrop-filter: blur(10px);
-  padding: 40px;
-  border-radius: 24px;
-  border: 1px solid rgba(255,255,255,0.1);
-  max-width: 400px;
-  margin-left: auto;
-  margin-right: 10vw; 
-  text-align: left;
-}
-.feature-box h2 {
-  font-size: 2rem;
-  margin-bottom: 10px;
-  color: #fff;
-}
-.feature-box p {
-  font-size: 1rem;
-  transform: none;
-  opacity: 1;
+/* Spacer to make page long enough to scroll */
+.scroll-spacer {
+  height: 500vh; /* Adjust length of scroll */
 }
 
-/* Spacer for animation length */
-.spacer {
-  height: 400vh; /* Determines length of scroll */
-}
+/* Helper to push text out of the way of the camera */
+.text-top { justify-content: flex-start; padding-top: 10vh; }
+.text-bottom { justify-content: flex-end; padding-bottom: 10vh; }
 
-/* Animation Classes */
-.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
 </style>
 </head>
-
 <body>
 
-<!-- LOADING SCREEN -->
-<div id="loader">
-  <div style="font-weight: 600; letter-spacing: 1px;">LUMINA X1</div>
-  <div class="loader-bar"><div class="loader-progress" id="progress"></div></div>
-</div>
+  <!-- 1. THE STICKY CAMERA (Always Visible) -->
+  <div class="sticky-stage">
+    <canvas id="hero-canvas"></canvas>
+  </div>
 
-<!-- BACKGROUND CANVAS (FIXED) -->
-<div class="sticky-container">
-  <div class="lens-glow" id="glow"></div>
-  <canvas id="hero-lightpass"></canvas>
-</div>
+  <!-- 2. THE SCROLLING TEXT (Moves over the camera) -->
+  <div class="content-layer">
+    
+    <section class="text-top">
+      <h1>THE OPTIC.</h1>
+      <p>Scroll to inspect the engineering.</p>
+    </section>
 
-<!-- SCROLLABLE TEXT OVERLAY -->
-<div class="scroll-container">
-  
-  <section id="sec1">
-    <h1>LUMINA X1</h1>
-    <p>The dawn of a new era in optical precision.</p>
-  </section>
+    <!-- Empty space for the "Middle" of the animation -->
+    <section></section> 
 
-  <section id="sec2">
-    <!-- Empty section to allow camera to turn -->
-  </section>
+    <section class="text-bottom">
+      <h2>Titanium Shield</h2>
+      <p>Forged in high-pressure environments. The lens coating reflects 99.9% of glare.</p>
+    </section>
 
-  <section id="sec3" style="align-items: flex-end;">
-    <div class="feature-box">
-      <h2>Titanium Body</h2>
-      <p>Aerospace-grade titanium alloy. Lighter than steel, harder than aluminum. Designed to withstand the impossible.</p>
-    </div>
-  </section>
+    <section class="text-top">
+      <h2>8K Sensor</h2>
+      <p>Processing reality at the speed of light.</p>
+    </section>
 
-  <section id="sec4">
-    <h1>108MP Precision</h1>
-    <p>Capture every photon. Experience reality, enhanced.</p>
-  </section>
+    <section style="height: 50vh"></section>
 
-</div>
+  </div>
 
-<div class="spacer"></div>
+  <!-- 3. SCROLL LOGIC -->
+  <div class="scroll-spacer"></div>
 
 <script>
-/* =========================================
-   CONFIGURATION
-   ========================================= */
-const canvas = document.getElementById("hero-lightpass");
-const context = canvas.getContext("2d");
+/* ===== CONFIGURATION ===== */
+const canvas = document.getElementById("hero-canvas");
+const ctx = canvas.getContext("2d");
 
-// IMPORTANT: For a "10x" feel, you usually need 60-100 frames.
-// Since you provided 5, I will map the code to use them, 
-// but for the best result, export a video as an image sequence (001.webp to 100.webp).
+// YOUR FRAMES HERE
 const frameCount = 5; 
-const currentFrame = index => (
-  // Update this path to match your folder structure
-  `assets/images/img${index + 1}.webp` 
-);
+const getFramePath = (index) => `assets/images/img${index + 1}.webp`;
 
-/* =========================================
-   PRELOADING IMAGES
-   ========================================= */
 const images = [];
-const loader = document.getElementById('loader');
-const progress = document.getElementById('progress');
-let imagesLoaded = 0;
+const frameState = { current: 0 };
 
-const preloadImages = () => {
-  for (let i = 0; i < frameCount; i++) {
+/* ===== 1. LIGHTNING FAST START ===== */
+// We load the FIRST image immediately so the user sees something instantly.
+const img0 = new Image();
+img0.src = getFramePath(0);
+img0.onload = () => {
+  // Set canvas size to match image resolution (High Quality)
+  canvas.width = img0.width;
+  canvas.height = img0.height;
+  ctx.drawImage(img0, 0, 0);
+  
+  // Start loading the rest in background
+  loadRestOfImages();
+};
+images[0] = img0;
+
+/* ===== 2. BACKGROUND LOADING ===== */
+function loadRestOfImages() {
+  for (let i = 1; i < frameCount; i++) {
     const img = new Image();
-    img.src = currentFrame(i);
-    img.onload = () => {
-      imagesLoaded++;
-      const percent = (imagesLoaded / frameCount) * 100;
-      progress.style.width = percent + '%';
-      
-      if (imagesLoaded === frameCount) {
-        setTimeout(() => {
-          loader.style.opacity = '0';
-          setTimeout(() => { 
-            loader.style.display = 'none'; 
-            document.querySelector('#sec1 h1').classList.add('visible');
-            document.querySelector('#sec1 p').classList.add('visible');
-            document.getElementById('glow').style.opacity = '1';
-          }, 500);
-        }, 500);
-      }
-    };
-    images.push(img);
+    img.src = getFramePath(i);
+    images[i] = img;
   }
-};
+}
 
-/* =========================================
-   CANVAS SETUP
-   ========================================= */
-// Set canvas dimensions to match window
-const updateImage = index => {
-  const img = images[index];
-  if (!img) return;
-  
-  // Calculate "Cover" fit for canvas
-  const canvasRatio = canvas.width / canvas.height;
-  const imgRatio = img.width / img.height;
-  let drawWidth, drawHeight, offsetX, offsetY;
-
-  if (imgRatio > canvasRatio) {
-    drawHeight = canvas.height;
-    drawWidth = img.width * (canvas.height / img.height);
-    offsetX = (canvas.width - drawWidth) / 2;
-    offsetY = 0;
-  } else {
-    drawWidth = canvas.width;
-    drawHeight = img.height * (canvas.width / img.width);
-    offsetX = 0;
-    offsetY = (canvas.height - drawHeight) / 2;
+/* ===== 3. SMOOTH SCROLL ENGINE ===== */
+function updateFrame(index) {
+  // Only draw if image is loaded
+  if (images[index] && images[index].complete) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(images[index], 0, 0);
   }
+}
 
-  context.clearRect(0, 0, canvas.width, canvas.height);
-  context.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
-};
-
-// Handle resize
-window.addEventListener('resize', () => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  updateImage(Math.round(val.frame));
-});
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-/* =========================================
-   SCROLL ANIMATION ENGINE
-   ========================================= */
-// This object holds the state
-const val = { frame: 0 };
-
-// LERP function (Linear Interpolation) for smoothness
-// start = current pos, end = target pos, t = speed (0 to 1)
-const lerp = (start, end, t) => start * (1 - t) + end * t;
-
-let targetScroll = 0;
-let currentScroll = 0;
-
-window.addEventListener('scroll', () => {
-  const html = document.documentElement;
-  const scrollTop = html.scrollTop;
-  const maxScroll = html.scrollHeight - window.innerHeight;
-  
-  // Calculate scroll percentage (0 to 1)
+window.addEventListener("scroll", () => {  
+  const scrollTop = window.scrollY;
+  const maxScroll = document.body.scrollHeight - window.innerHeight;
   const scrollFraction = scrollTop / maxScroll;
-  
-  // Calculate target frame index
-  targetScroll = Math.min(
+
+  // Map scroll (0 to 1) to Frame Index (0 to 4)
+  const targetIndex = Math.min(
     frameCount - 1,
     Math.ceil(scrollFraction * (frameCount - 1))
   );
 
-  // Trigger Text Animations based on scroll
-  const sections = document.querySelectorAll('section');
-  sections.forEach(sec => {
-    const rect = sec.getBoundingClientRect();
-    if(rect.top < window.innerHeight / 1.5) {
-      const h1 = sec.querySelector('h1');
-      const p = sec.querySelector('p');
-      if(h1) h1.classList.add('visible');
-      if(p) p.classList.add('visible');
-    }
-  });
+  requestAnimationFrame(() => updateFrame(targetIndex));
 });
-
-// The Animation Loop
-const render = () => {
-  // Smoothly interpolate current frame towards target frame
-  // 0.08 is the easing factor (lower is smoother/slower)
-  val.frame = lerp(val.frame, targetScroll, 0.08);
-  
-  // Round to nearest integer to get array index
-  const frameIndex = Math.round(val.frame);
-  
-  updateImage(frameIndex);
-  requestAnimationFrame(render);
-};
-
-/* =========================================
-   INIT
-   ========================================= */
-preloadImages();
-render();
 
 </script>
 </body>
