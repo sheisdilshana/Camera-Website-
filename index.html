@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Perceptual Scroll Image Animation</title>
+<title>Camera Product – Perceptual Animation</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -15,17 +15,37 @@
 
 /* ===== BODY ===== */
 body {
-  height: 300vh; /* scroll space */
-  background: #0b0b0b;
-  font-family: system-ui, sans-serif;
+  height: 400vh;
+  background: radial-gradient(circle at top, #111, #000);
+  color: #fff;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* ===== SPACERS ===== */
-.spacer {
+/* ===== HERO TEXT ===== */
+.hero {
+  position: sticky;
+  top: 0;
   height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
 }
 
-/* ===== VIEWER ===== */
+.hero h1 {
+  font-size: clamp(2rem, 5vw, 4rem);
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+
+.hero p {
+  opacity: 0.7;
+  font-size: 1.1rem;
+}
+
+/* ===== CAMERA VIEWER ===== */
 .viewer {
   position: sticky;
   top: 0;
@@ -35,40 +55,39 @@ body {
   justify-content: center;
 }
 
-/* ===== IMAGE ===== */
 .viewer img {
   width: 60vw;
-  max-width: 700px;
+  max-width: 720px;
   height: auto;
 
-  /* GPU acceleration */
   will-change: transform, opacity;
-  transition: opacity 0.08s linear;
+  transition: opacity 0.12s ease-out;
 
-  /* perceptual sharpness */
-  filter: contrast(1.02) saturate(1.05);
+  filter: contrast(1.03) saturate(1.05);
+}
+
+/* ===== SECTION ===== */
+.section {
+  height: 100vh;
 }
 </style>
 </head>
 
 <body>
 
-<section class="spacer"></section>
-
-<section class="viewer">
-  <img 
-    id="frame"
-    src="assets/images/img1.webp"
-    alt="Camera Animation"
-    decoding="async"
-    fetchpriority="high"
-  />
+<section class="hero">
+  <h1>PRO CAMERA</h1>
+  <p>Scroll to experience the click</p>
 </section>
 
-<section class="spacer"></section>
+<section class="viewer">
+  <img id="camera" src="assets/images/img1.webp" alt="Camera">
+</section>
+
+<section class="section"></section>
 
 <script>
-/* ===== IMAGE FRAMES ===== */
+/* ===== FRAME DATA ===== */
 const frames = [
   "assets/images/img1.webp",
   "assets/images/img2.webp",
@@ -77,43 +96,47 @@ const frames = [
   "assets/images/img5.webp"
 ];
 
-const img = document.getElementById("frame");
-const total = frames.length;
+const img = document.getElementById("camera");
+const totalFrames = frames.length;
 
 /* ===== PRELOAD & DECODE ===== */
-const cache = [];
-
-frames.forEach(src => {
+const cache = frames.map(src => {
   const i = new Image();
   i.src = src;
   i.decode().catch(() => {});
-  cache.push(i);
+  return i;
 });
 
-/* ===== SCROLL LOGIC ===== */
-let lastFrame = 0;
+/* ===== SMOOTH SCROLL ENGINE ===== */
+let targetFrame = 0;
+let currentFrame = 0;
+const ease = 0.08; // lower = smoother
 
+function animate() {
+  currentFrame += (targetFrame - currentFrame) * ease;
+  const index = Math.round(currentFrame);
+
+  if (cache[index] && img.src !== cache[index].src) {
+    img.src = cache[index].src;
+  }
+
+  requestAnimationFrame(animate);
+}
+
+/* ===== SCROLL LISTENER ===== */
 window.addEventListener("scroll", () => {
   const scrollTop = window.scrollY;
   const maxScroll = document.body.scrollHeight - window.innerHeight;
   const progress = scrollTop / maxScroll;
 
-  const frameIndex = Math.min(
-    total - 1,
-    Math.floor(progress * total)
+  targetFrame = Math.min(
+    totalFrames - 1,
+    progress * (totalFrames - 1)
   );
-
-  if (frameIndex !== lastFrame) {
-    img.style.opacity = "0.95";
-    img.src = cache[frameIndex].src;
-    lastFrame = frameIndex;
-  }
 });
 
-/* ===== INSTANT FIRST FRAME ===== */
-window.addEventListener("load", () => {
-  img.src = cache[0].src;
-});
+/* ===== START LOOP ===== */
+animate();
 </script>
 
 </body>
